@@ -50,7 +50,9 @@ When /^(?:|I )go to (.+)$/ do |page_name|
 end
 
 When /^(?:|I )press "([^"]*)"$/ do |button|
+  
   click_button(button)
+ # print page.html
 end
 
 When /^(?:|I )follow "([^"]*)"$/ do |link|
@@ -102,30 +104,41 @@ When /^(?:|I )attach the file "([^"]*)" to "([^"]*)"$/ do |path, field|
   attach_file(field, File.expand_path(path))
 end
 
-Then /^(?:|I )should see "([^"]*)"$/ do |text|
-  if page.respond_to? :should
-    page.should have_content(text)
+Then /^(?:|I )should see ([^"]*)$/ do |text|
+ text.delete("()'").split(',').each do  |stext| 
+  if text =="all of the movies"
+   assert page.all('table#movies tr').count != 10, "Not right rows"
+  elsif text =="no of the movies"
+     assert page.all('table#movies tr').count != 0, "Not right rows"
   else
-    assert page.has_content?(text)
+  if page.respond_to? :should
+    page.should have_content(stext)
+  else
+    assert page.has_content?(stext)
   end
+end
+end
 end
 
 Then /^(?:|I )should see \/([^\/]*)\/$/ do |regexp|
   regexp = Regexp.new(regexp)
-
+  
   if page.respond_to? :should
     page.should have_xpath('//*', :text => regexp)
   else
     assert page.has_xpath?('//*', :text => regexp)
   end
+
 end
 
-Then /^(?:|I )should not see "([^"]*)"$/ do |text|
+Then /^(?:|I )should not see ([^"]*)$/ do |text|
+text.delete("()'").split(',').each do  |stext| 
   if page.respond_to? :should
-    page.should have_no_content(text)
+    page.should have_no_content(stext)
   else
-    assert page.has_no_content?(text)
+    assert page.has_no_content?(stext)
   end
+end
 end
 
 Then /^(?:|I )should not see \/([^\/]*)\/$/ do |regexp|
@@ -252,3 +265,9 @@ end
 Then /^show me the page$/ do
   save_and_open_page
 end
+
+#Then /^I should see all of the movies$/ do
+# assert page.all('table#movies tr').count != 10, "Not right rows"
+
+#end
+
